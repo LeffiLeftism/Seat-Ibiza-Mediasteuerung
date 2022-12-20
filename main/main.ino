@@ -13,6 +13,7 @@ Relais BAT2V_CAPV(3);                         //Connection Battery 2 to Capacito
 Relais BAT2V_PS(4);                           //Connection Battery 2 to PowerSupply
 Relais CAPV_AMP(5);                           //Connection Capacitor to Amplifier
 Timer T_BAT2(10*60*1000);                     //Timer to load BAT2 within 10 Minutes
+Timer T_Ignition(1*60*1000);                  //Timer to deactivate all after ignition is off
 
 void setup() {
   // put your setup code here, to run once:
@@ -20,15 +21,19 @@ void setup() {
     Serial.begin(9600);
     Serial.println("Setup");
   #endif
+  //Initialize voltage transformer
   IV.init();
   BV.init();
   BAT2V.init();
   CAPV.init();
+  //Initialize relais
   BV_BAT2V.init();
   BAT2V_CAPV.init();
   BAT2V_PS.init();
   CAPV_AMP.init();
+  //Initialize timer
   T_BAT2.init();
+  T_Ignition.init();
 }
 
 void loop() {
@@ -37,7 +42,17 @@ void loop() {
   #endif
   // put your main code here, to run repeatedly:
   T_BAT2.update();
-  checkup();
+  checkIgnition();
+}
+
+void checkIgnition() {
+  if(IV.get() > 11.5) { //Check if Ignition is turned on
+    checkup();
+  } else if (!T_Ignition.isStartet()) {
+    T_Ignition.start();
+  } else if (T_Ignition.isFinished()){
+    resetRelais();
+  }
 }
 
 void checkup(){
@@ -107,8 +122,9 @@ void resetRelais() {
   #ifdef DEBUG 
     Serial.println("Reset Relais");
   #endif
-  BV_BAT2V.off();
-  BAT2V_CAPV.off();
-  BAT2V_PS.off();
   CAPV_AMP.off();
+  BAT2V_CAPV.off();
+  BV_BAT2V.off();
+  BAT2V_PS.off();
+  //The system should shutdown, because no power
 }
