@@ -4,7 +4,7 @@ namespace  {
       uint8_t m_pin;
       bool m_state;
       void update(){
-        digitalWrite(m_pin, m_state);
+        digitalWrite(m_pin, !m_state);
         delay(1250);
       }
     public:
@@ -15,6 +15,7 @@ namespace  {
       void init(){
         pinMode(m_pin, OUTPUT);
         m_state = 0;
+        update();
       }
       void on(){
         if (!m_state) {

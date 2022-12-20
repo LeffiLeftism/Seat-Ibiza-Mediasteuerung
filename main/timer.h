@@ -27,8 +27,7 @@ namespace  {
         }
       }
       void reset() {
-        m_isStarted = 0;
-        m_isFinished = 0;
+        init();
       }
       bool isStartet() {
         return m_isStarted;
